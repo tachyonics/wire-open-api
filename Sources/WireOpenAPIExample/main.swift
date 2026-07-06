@@ -1,5 +1,4 @@
 import HTTPTypes
-import Wire
 import WireOpenAPI
 
 // M3.1 gate: the build plugin re-parses WireOpenAPI (via `_WireExports`), picks up
