@@ -26,6 +26,44 @@ final class OpenAPIControllerMacroTests: XCTestCase {
         )
     }
 
+    func testPackageAccessWitness() {
+        assertMacroExpansion(
+            """
+            @OpenAPIController
+            package struct TaskController {}
+            """,
+            expandedSource: """
+                package struct TaskController {}
+
+                extension TaskController: TransportContributor {
+                    package func registerWireHandlers(on transport: any ServerTransport) throws {
+                        try registerHandlers(on: transport)
+                    }
+                }
+                """,
+            macros: macros
+        )
+    }
+
+    func testPublicAccessWitness() {
+        assertMacroExpansion(
+            """
+            @OpenAPIController
+            public struct TaskController {}
+            """,
+            expandedSource: """
+                public struct TaskController {}
+
+                extension TaskController: TransportContributor {
+                    public func registerWireHandlers(on transport: any ServerTransport) throws {
+                        try registerHandlers(on: transport)
+                    }
+                }
+                """,
+            macros: macros
+        )
+    }
+
     func testBasePath() {
         assertMacroExpansion(
             """
