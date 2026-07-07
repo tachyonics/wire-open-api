@@ -1,12 +1,11 @@
 import HTTPTypes
 import WireOpenAPI
 
-// M3.1 gate: the build plugin re-parses WireOpenAPI (via `_WireExports`), picks up
-// `TransportKeys.handlers` and the `TransportComposable` conformance declaration, and emits
-// `extension _WireGraph: TransportComposable`. `Wire.bootstrap()` returns the concrete graph,
-// which therefore feeds `WireOpenAPI.apply` directly — confirming Wire Core needs no change
-// for the `ServerTransport` surface (a `CollectedKey` → `[element]` member, the same
-// non-associated-type emission shipped for Hummingbird routes).
+// End-to-end: the build plugin collates the `@OpenAPIController` controller (its alias fans
+// it into `TransportKeys.handlers`) and emits `extension _WireGraph: TransportComposable`.
+// `Wire.bootstrap()` returns the concrete graph, which feeds `WireOpenAPI.apply` directly;
+// `apply` calls each controller's generated witness, registering its handlers onto the
+// transport.
 let graph = try await Wire.bootstrap()
 
 let transport = RecordingTransport()
