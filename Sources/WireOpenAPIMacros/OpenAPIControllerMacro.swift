@@ -22,15 +22,33 @@ public struct OpenAPIControllerMacro: ExtensionMacro {
             registration = "try registerHandlers(on: transport)"
         }
 
+        // The witness must be at least as accessible as the controller — it satisfies a public
+        // protocol requirement, so a `public` or `package` controller needs a matching witness.
+        let access = accessModifier(declaration.modifiers)
+
         let conformance: DeclSyntax =
             """
             extension \(type.trimmed): TransportContributor {
-                func registerWireHandlers(on transport: any ServerTransport) throws {
+                \(raw: access)func registerWireHandlers(on transport: any ServerTransport) throws {
                     \(raw: registration)
                 }
             }
             """
         return [conformance.cast(ExtensionDeclSyntax.self)]
+    }
+
+    /// The access-control modifier (with a trailing space) the witness must carry to match the
+    /// controller's, or `""` for internal/private controllers where a default-access witness
+    /// already satisfies the requirement. `open` maps to `public` — a struct witness can't be `open`.
+    private static func accessModifier(_ modifiers: DeclModifierListSyntax) -> String {
+        for modifier in modifiers {
+            switch modifier.name.tokenKind {
+            case .keyword(.public), .keyword(.open): return "public "
+            case .keyword(.package): return "package "
+            default: continue
+            }
+        }
+        return ""
     }
 
     /// The first positional string-literal argument's value, or `nil` if the
