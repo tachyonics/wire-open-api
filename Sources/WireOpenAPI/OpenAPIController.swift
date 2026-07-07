@@ -1,6 +1,11 @@
-import Foundation
 import OpenAPIRuntime
 import Wire
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 
 // The controller collation feature: the `@OpenAPIController` macro, its contribution alias,
 // and the base-path → `serverURL` helper the macro's generated witness calls.
