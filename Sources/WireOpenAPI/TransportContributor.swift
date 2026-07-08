@@ -7,7 +7,12 @@ import Wire
 /// — it owns the mount (an optional base path) and delegates to the generated
 /// `registerHandlers(on:)`. Not intended to be written by hand (the `Wire` in the name
 /// marks it generated).
-public protocol TransportContributor {
+///
+/// `Sendable` because a controller is an app-scoped singleton whose handlers run
+/// concurrently per request — it's shared across isolation domains already. Requiring it
+/// here also keeps the generated graph `Sendable`, so it can be handed to a
+/// `ServiceGroup` / `WireHummingbird.teardownService`.
+public protocol TransportContributor: Sendable {
     func registerWireHandlers(on transport: any ServerTransport) throws
 }
 
